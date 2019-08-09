@@ -8,6 +8,7 @@ enableLetsEncryptCertsOnRoutes() {
     echo -en "metadata:\n  annotations:\n    kubernetes.io/tls-acme: \"true\"" > /tmp/route-tls-patch.yml
     oc patch route emergency-console --type merge --patch "$(cat /tmp/route-tls-patch.yml)" -n emergency-response-demo
     oc patch route disaster-simulator --type merge --patch "$(cat /tmp/route-tls-patch.yml)" -n emergency-response-demo
+    oc patch route responder-simulator --type merge --patch "$(cat /tmp/route-tls-patch.yml)" -n emergency-response-demo
     oc patch route sso --type merge --patch "$(cat /tmp/route-tls-patch.yml)" -n $rhsso_project
 }
 
