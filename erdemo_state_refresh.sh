@@ -1,27 +1,23 @@
 rhsso_project=sso
-new_guid=`echo $HOSTNAME | cut -d'.' -f 1 | cut -d'-' -f 2`
-stale_guid=`cat $HOME/guid`
 
 enableLetsEncryptCertsOnRoutes() {
     oc new-project prod-letsencrypt
     oc create -f https://raw.githubusercontent.com/tnozicka/openshift-acme/master/deploy/letsencrypt-live/cluster-wide/{clusterrole,serviceaccount,imagestream,deployment}.yaml
     oc adm policy add-cluster-role-to-user openshift-acme -z openshift-acme
 
-    # ERDemo Routes
-    oc patch route/emergency-console --type=json -n emergency-response-demo \
-         -p '[{"op": "add", "path": "/metadata/annotations/kubernetes.io~1tls-acme", "value":"true"}]'
-    oc patch route/disaster-simulator --type=json -n emergency-response-demo \
-         -p '[{"op": "add", "path": "/metadata/annotations/kubernetes.io~1tls-acme", "value":"true"}]'
-
-    # SSO Route
-    oc patch route/sso --type=json -n sso \
-         -p '[{"op": "add", "path": "/metadata/annotations/kubernetes.io~1tls-acme", "value":"true"}]'
+    echo -en "metadata:\n  annotations:\n    kubernetes.io/tls-acme: \"true\"" > /tmp/route-tls-patch.yml
+    oc patch route emergency-console --type merge --patch "$(cat /tmp/route-tls-patch.yml)" -n emergency-response-demo
+    oc patch route disaster-simulator --type merge --patch "$(cat /tmp/route-tls-patch.yml)" -n emergency-response-demo
+    oc patch route sso --type merge --patch "$(cat /tmp/route-tls-patch.yml)" -n $rhsso_project
 }
 
 
 
 
 refreshStaleURLs() {
+    new_guid=`echo $HOSTNAME | cut -d'.' -f 1 | cut -d'-' -f 2`
+    stale_guid=`cat $HOME/guid`
+
     # Switch to namespace of RHSSO
     oc project $rhsso_project
 
@@ -48,12 +44,9 @@ refreshStaleURLs() {
 
     oc patch cm/sso-config --patch '{"data":{"AUTH_URL":"https://sso-sso.apps-'$new_guid'.generic.opentlc.com/auth"}}' -n emergency-response-demo
     oc rollout latest dc/emergency-console -n emergency-response-demo
-}
 
-updateGUIDFile() {
     echo $new_guid > $HOME/guid
 }
 
 enableLetsEncryptCertsOnRoutes
 refreshStaleURLs
-updateGUIDFile
