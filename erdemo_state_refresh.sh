@@ -1,5 +1,11 @@
 rhsso_project=sso
 
+setUserPermissions() {
+    oc adm policy add-role-to-user admin user1 -n emergency-response-demo
+    oc adm policy add-role-to-user admin user1 -n emergency-response-monitoring
+    oc adm policy add-role-to-user admin user1 -n tools-erd
+}
+
 enableLetsEncryptCertsOnRoutes() {
     oc delete project prod-letsencrypt
     oc new-project prod-letsencrypt
@@ -50,5 +56,6 @@ refreshStaleURLs() {
     echo $new_guid > $HOME/guid
 }
 
+setUserPermissions
 enableLetsEncryptCertsOnRoutes
 refreshStaleURLs
