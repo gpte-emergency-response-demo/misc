@@ -6,6 +6,10 @@ setUserPermissions() {
     oc adm policy add-role-to-user admin user1 -n tools-erd
 }
 
+# 22 August 2019; JA Bride
+# The following error is occuring:
+#
+#   failed to create ACME certificate: 429 urn:acme:error:rateLimited: Error creating new cert :: too many certificates already issued for: opentlc.com: see https://letsencrypt.org/docs/rate-limits/
 enableLetsEncryptCertsOnRoutes() {
     oc delete project prod-letsencrypt
     oc new-project prod-letsencrypt
@@ -57,5 +61,5 @@ refreshStaleURLs() {
 }
 
 setUserPermissions
-enableLetsEncryptCertsOnRoutes
+#enableLetsEncryptCertsOnRoutes
 refreshStaleURLs
