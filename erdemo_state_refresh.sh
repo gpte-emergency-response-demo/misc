@@ -66,7 +66,7 @@ createFreshDockerRegistryRoute() {
 
     oc create route passthrough docker-registry --service=docker-registry -n default
 
-    echo "\nCreated a fresh docker registry route.\n\n"
+    echo -en "\nCreated a fresh docker registry route.\n\n"
 }
 
 setUserPermissions
