@@ -60,6 +60,16 @@ refreshStaleURLs() {
     echo $new_guid > $HOME/guid
 }
 
+createFreshDockerRegistryRoute() {
+
+    oc delete route docker-registry -n default
+
+    oc create route passthrough docker-registry --service=docker-registry -n default
+
+    echo "\nCreated a fresh docker registry route.\n\n"
+}
+
 setUserPermissions
 #enableLetsEncryptCertsOnRoutes
 refreshStaleURLs
+createFreshDockerRegistryRoute
